@@ -1,28 +1,44 @@
-/*
- * list.h
- *
- * Définition des structure de données pour la gestion de liste chainée
- */
+#include <stdbool.h>
 
-#pragma once
-
-typedef struct listchainee_st *listchainee_ptr;
-
-struct listechainee_st {
-  int N;
-  listchainee_ptr next;
+struct element {
+    int value;
+    struct element *pointer;
 };
 
-/* forward decl of functions */
-void free_list(listchainee_ptr);
-listchainee_ptr init_list(void);
-listchainee_ptr reinit_list(listchainee_ptr);
-listchainee_ptr load_list(char*);
-void save_list(char*);
-int test_elem_in_list(listchainee_ptr, int);
-void append_list(listchainee_ptr, int);
-void prepend_list(listchainee_ptr, int);
-listchainee_ptr insert_elem_in_list(listchainee_ptr, int, int);
-void delete_end_of_list(listchainee_ptr);
-listchainee_ptr delete_start_of_list(listchainee_ptr);
-listchainee_ptr delete_elem_in_list(listchainee_ptr, int);
+// idx = index, val = value
+
+//creer une liste d'un element ayant pour valeur "val"
+struct element * createlist(int val);
+
+//test si une liste est vide ou nom, renvoie un bool
+bool listisempty(struct element *list);
+
+//renvoie le nombre d'elements d'une liste
+int lenlist(struct element *list);
+
+//affiche le contenu de la liste
+void printlist (struct element *list);
+
+//affiche le contenu de la liste de maniere plus detaillee
+void debuglist(struct element *list);
+
+//renvoie l'element aynt pour index "idx"
+struct element * indexlist(struct element *list, int idx);
+
+//ajoute au debut de la liste un element de valeur "val"
+void prependlist(struct element *list, int val);
+
+//ajoute a la fin de la liste un element de valeur "val"
+void appendlist(struct element *list, int val);
+
+//supprime le premier element de la liste
+void deletefirst(struct element *list);
+
+//supprime le dernier element de la liste
+void deletelast(struct element *list);
+
+//ajoute un element de valeur "val" ayant pour index "idx"
+void addelement(struct element *list, int idx, int val);
+
+//supprim l'element ayant pour index "idx"
+void removeelement(struct element *list, int idx);
