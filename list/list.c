@@ -1,145 +1,126 @@
-/*
- * list.c
- *
- * Operation de base de manipulation d'une liste chainee
- */
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <assert.h>
 #include "list.h"
 
-/* Extern decl of current listchainee */
-extern listchainee_ptr curlist;
 
-void
-free_list(listchainee_ptr list)
-{
-  while(curlist)
-    {
-      listchainee_ptr tmp = curlist;
-      curlist = curlist->next;
-      free(tmp);
+struct element * createlist (int val) {
+    struct element *newlist = malloc(sizeof(struct element));
+    newlist -> value = val;
+    newlist -> pointer = NULL;
+    return newlist;
+}
+
+bool listisempty (struct element *list) {
+    return list == NULL;
+}
+
+int lenlist (struct element *list) {
+    int len = 0;
+    while (!listisempty(list)) {
+        list = list -> pointer;
+        len += 1;
+    }
+    return len;
+}
+
+void printlist(struct element *list) {
+    printf("--- MY LIST ---\n");
+    while (!listisempty(list)) {
+        printf("%d\n", list -> value);
+        list = list -> pointer;
+    }
+    printf("--- END ---\n");
+}
+
+void debuglist(struct element *list) {
+    int i = 0;
+    printf("--- DEBUGGING LIST ---\n");
+    printf("--- LEN LIST --\n");
+    printf("%d\n", lenlist(list));
+    while (!listisempty(list)) {
+        printf("--- INDEX %d ---\n", i);
+        printf("Value : %d\n", list -> value);
+        if (!(list -> pointer == NULL)) {
+            printf("Pointing on : %d\n", list -> pointer -> value);
+        }
+        i += 1;
+        list = list -> pointer;
     }
 }
 
-listchainee_ptr
-init_list(void)
-{
-  if (curlist != NULL)
-    free_list(curlist);
-  curlist = NULL;
-}
-
-listchainee_ptr
-reinit_list(listchainee_ptr list)
-{
-  
-}
-
-listchainee_ptr
-load_list(char* filename)
-{
-  
-}
-
-void
-save_list(char* filename)
-{
-  
-}
-
-int
-test_elem_in_list(listchainee_ptr list, int n)
-{
-  listchainee_ptr tmp = list;
-  if (tmp == NULL)
-    return 0;
-  while(tmp)
-    {
-      if (tmp->N == n)
-        return 1;
-      tmp = tmp->next;
+struct element * indexlist(struct element *list, int idx) {
+    assert(idx >= 0 && idx < lenlist(list));
+    for (int i = 0; i < idx; i++) {
+        list = list -> pointer;
     }
-  return 0;
+    return list;
 }
 
-int
-test_ix_in_list(listchainee_ptr list, int ix)
-{
-  int lix = 0;
-  listchainee_ptr tmp = list;
-  if (tmp == NULL)
-    return 0;
-  while(tmp)
-    {
-      if (lix == ix)
-        return 1;
-      tmp = tmp->next;
-      lix++;
+void prependlist(struct element *list, int val) {
+    struct element *newlist = malloc(sizeof(struct element));
+    newlist -> value = list -> value;
+    newlist -> pointer = list -> pointer;
+    list -> value = val;
+    list -> pointer = newlist;
+
+}
+
+void appendlist(struct element *list, int val) {
+    struct element *newlist = malloc(sizeof(struct element));
+    newlist -> value = val;
+    newlist -> pointer = NULL;
+    indexlist(list, lenlist(list) - 1) -> pointer = newlist;
+}
+
+void deletefirst(struct element *list) {
+    int tmpvalue = indexlist(list, 1) -> value;
+    struct element *tmpptr = indexlist(list, 1) -> pointer;
+    free(indexlist(list, 1));
+    list -> value = tmpvalue;
+    list -> pointer = tmpptr;
+}
+
+void deletelast(struct element *list) {
+    int len = lenlist(list);
+    struct element *tmpptr = indexlist(list, len - 1);
+    indexlist(list, len - 2) -> pointer = NULL;
+    free(tmpptr);
+}
+
+void addelement(struct element *list, int idx, int val) {
+    if (idx == 0) {
+        prependlist(list, val);
     }
-  return 0;
-}
-
-void
-append_list(listchainee_ptr list, int n)
-{
-  
-}
-
-void
-prepend_list(listchainee_ptr list, int n)
-{
-  
-}
-
-listchainee_ptr
-insert_elem_in_list(listchainee_ptr list, int ix, int n)
-{
-  if (test_ix_in_list(list, ix))
-    {
-      int lix = 0;
-      listchainee_ptr tmp = list;
-      while(tmp)
-        {
-          if (lix == ix)
-            {
-              listchainee_ptr newn = (listchainee_ptr)malloc(sizeof(struct listchainee_st));
-              if (newn == NULL)
-                return NULL;
-              newn->N = n;
-              if (ix == 0)
-                {
-                  newn->next = tmp->next;
-                  return newn;
-                }
-              else
-                {
-                  newn->next = tmp->next;
-                  tmp->next = newn;
-                  return list;                  
-                }
-            }
-          tmp = tmp->next;
-          lix++;
-        }      
+    else if (idx > 0 && idx < (lenlist(list) - 1)) {
+        struct element *newelement = malloc(sizeof(struct element));
+        newelement -> value = val;
+        newelement -> pointer = indexlist(list, idx);
+        indexlist(list, idx - 1) -> pointer = newelement;
     }
-  else
-    return(NULL);
+    else if (idx == (lenlist(list) - 1)) {
+        appendlist(list, val);
+    }
+    else {
+        assert(1 != 1);
+    }
 }
 
-void
-delete_end_of_list(listchainee_ptr list)
-{
-  
+void removeelement(struct element *list, int idx) {
+    if (idx == 0) {
+        deletefirst(list);
+    }
+    else if (idx > 0 && idx < (lenlist(list) - 1)) {
+        struct element *tmpptr = indexlist(list, idx - 1);
+        struct element *tmpptr2 = tmpptr -> pointer;
+        tmpptr -> pointer = tmpptr2 -> pointer;
+        free(tmpptr2);
+    }
+    else if (idx == (lenlist(list) - 1)) {
+        deletelast(list);
+    }
+    else {
+        assert(1 != 1);
+    }
 }
-
-listchainee_ptr
-delete_start_of_list(listchainee_ptr list)
-{
-  
-} 
-
-listchainee_ptr
-delete_elem_in_list(listchainee_ptr list, int ix)
-{
-  
-}
-
